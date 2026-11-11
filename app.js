@@ -21,7 +21,7 @@ async function load(){
  $('basis').textContent=data.asOf?`업데이트 ${data.asOf.slice(0,10)} · ${new Set(cs.map(x=>x.district)).size}/25개 구`:'아직 연결된 자료가 없습니다';
  const tasks=data.tasks,done=tasks.filter(t=>t.state==='done').length,failed=tasks.filter(t=>t.state==='failed');
  $('progress').max=tasks.length||1;$('progress').value=done;
- $('jobStatus').textContent=`${data.running?'적재 중':'대기'} · 2021년부터 ${fmt(data.history?.done||0)}/${fmt(data.history?.total||0)} 구·월 · 실패 ${failed.length}`;
+ $('jobStatus').textContent=`${data.running?'적재 중':'대기'} · 2019년부터 ${fmt(data.history?.done||0)}/${fmt(data.history?.total||0)} 구·월 · 실패 ${failed.length}`;
  if(data.running){const percent=Math.floor((data.history?.done||0)/(data.history?.total||1)*100);message(`과거 자료 불러오는 중 · ${percent}%`);}
  $('failures').replaceChildren(...failed.map(t=>{const li=document.createElement('li');li.textContent=`${data.districts[t.district]} ${t.month}: ${t.error}`;return li;}));
  $('start').disabled=data.running||!data.configured;$('resume').disabled=data.running||!data.configured;$('stop').disabled=!data.running;
@@ -42,9 +42,9 @@ async function updateOverview(newQuery=false,initial=null){
  if(newQuery){
   $('policyInfo').hidden=true;
   const month=chartMode==='monthly'?$('queryYear').value+'-01':$('queryMonth').value;
-  if(!month||month<'2021-01'||month>today){message('조회 월을 확인해 주세요.',true);return false;}
-  queryPeriod=chartMode==='all'?{start:'2021-01-01',end:currentDate}:chartMode==='monthly'?{start:month.slice(0,4)+'-01-01',end:month.slice(0,4)+'-12-31'}:Core.monthRange(month);selectedDay=null;recordDate=null;recordPage=0;
-  $('nextMonth').disabled=chartMode==='monthly'?month.slice(0,4)>=today.slice(0,4):month>=today;$('prevMonth').disabled=chartMode==='monthly'?month.slice(0,4)<='2021':month<='2021-01';
+  if(!month||month<'2019-01'||month>today){message('조회 월을 확인해 주세요.',true);return false;}
+  queryPeriod=chartMode==='all'?{start:'2019-01-01',end:currentDate}:chartMode==='monthly'?{start:month.slice(0,4)+'-01-01',end:month.slice(0,4)+'-12-31'}:Core.monthRange(month);selectedDay=null;recordDate=null;recordPage=0;
+  $('nextMonth').disabled=chartMode==='monthly'?month.slice(0,4)>=today.slice(0,4):month>=today;$('prevMonth').disabled=chartMode==='monthly'?month.slice(0,4)<='2019':month<='2019-01';
  }
  if(!queryPeriod)return false;
  const token=++overviewRequest;
@@ -70,8 +70,8 @@ function renderDaily(){
  const w=Math.max(280,$('dailyChart').clientWidth||800),h=290,left=36,right=12,top=64,bottom=36,step=(w-left-right)/series.length;
  const x=i=>left+(i+.5)*step,y=v=>h-bottom-v/max*(h-top-bottom),barWidth=Math.max(3,Math.min(36,step*.58));
  const past=series.filter(d=>d.day<=currentDate),n=past.length?Math.min(...past.map(d=>d.covered)):0;
- $('chartSubtitle').textContent=chartMode==='all'?'2021년부터 현재까지 · 월별 건수 · 이번 달 진행 중':chartMode==='monthly'?'2021년부터 비교 · 월별 건수':'2021년부터 비교 · 일별 건수';
- $('dailyCoverage').textContent=n===25?'2021년부터 비교':n?`비교 완료 ${n}/25개 구`:'비교자료 적재 중';
+ $('chartSubtitle').textContent=chartMode==='all'?'2019년부터 현재까지 · 월별 건수 · 이번 달 진행 중':chartMode==='monthly'?'2019년부터 비교 · 월별 건수':'2019년부터 비교 · 일별 건수';
+ $('dailyCoverage').textContent=n===25?'2019년부터 비교':n?`비교 완료 ${n}/25개 구`:'비교자료 적재 중';
  $('monthRecords').innerHTML=(past.some(d=>d.covered)?fmt(series.reduce((sum,d)=>sum+d.count,0)):'—')+'<span>건</span>';
  const covered=data.coverage.map(c=>c.month).sort();
  $('coverageDescription').textContent=`조회 ${queryPeriod.start} ~ ${queryPeriod.end} · 비교 이력 ${covered.length?covered[0]+' ~ '+covered.at(-1):'없음'}`;
@@ -83,7 +83,7 @@ function renderDaily(){
  $('dailyChart').innerHTML=`<svg viewBox="0 0 ${w} ${h}" aria-label="신고가 ${chartMode!=='daily'?'월별':'일별'} 막대그래프">${grid}${dates}${bars}${flags}</svg>${!past.some(d=>d.covered)?'<div class="chart-empty"><span class="chart-loader" aria-hidden="true"></span><b>과거 거래를 비교하고 있어요</b><span>자료 수집이 끝나면 표시됩니다</span></div>':''}`;
  $('policyEvents').innerHTML=events.length?'<span class="policy-legend">● 주요 대책 발표일</span>'+events.map(p=>`<button type="button" data-policy="${p.index}">${esc(p.short)}</button>`).join(''):'';
  $('dailyRows').innerHTML=series.map(d=>`<tr><td>${chartMode!=='daily'?d.day.slice(0,7):d.day}</td><td>${d.day>currentDate?'—':fmt(d.count)}</td><td>${d.covered} / 25</td><td>${d.day>currentDate?'예정':d.complete?'비교 완료':'비교자료 적재 중'}</td></tr>`).join('');
- if(selectedDay)selectDay(selectedDay);else $('dailyReadout').textContent=past.some(d=>d.covered)?'막대를 누르면 해당 기간의 신고가를 볼 수 있습니다':'2021년부터 비교자료를 확인하고 있습니다';
+ if(selectedDay)selectDay(selectedDay);else $('dailyReadout').textContent=past.some(d=>d.covered)?'막대를 누르면 해당 기간의 신고가를 볼 수 있습니다':'2019년부터 비교자료를 확인하고 있습니다';
 }
 function recordGap(r){
  if(!r.previousDay)return '';
@@ -98,7 +98,7 @@ async function renderRecords(){
  const token=++recordRequest;let start=queryPeriod.start,end=queryPeriod.end;if(recordDate){if(chartMode==='daily')start=end=recordDate;else{const range=Core.monthRange(recordDate.slice(0,7));start=range.start;end=range.end;}}
  const result=await API.get('/api/trades',{start,end,kind:'record',page:recordPage+1,perPage:12});if(token!==recordRequest)return;
  recordRows=result.items;recordTotal=result.total;const rows=recordRows,visible=recordRows;
- $('recordsPeriod').textContent=(chartMode==='all'?'2021.01 ~ '+today.replace('-','.'):chartMode==='monthly'?queryPeriod.start.slice(0,4)+'년':queryPeriod.start.slice(0,7).replace('-','.'))+' · 2021년부터 비교';
+ $('recordsPeriod').textContent=(chartMode==='all'?'2019.01 ~ '+today.replace('-','.'):chartMode==='monthly'?queryPeriod.start.slice(0,4)+'년':queryPeriod.start.slice(0,7).replace('-','.'))+' · 2019년부터 비교';
  $('recordCount').textContent=fmt(recordTotal)+'건';$('clearRecordDate').hidden=!recordDate;
  $('recordDate').textContent=recordDate?(chartMode!=='daily'?recordDate.slice(0,7):recordDate):'';
  $('recordList').innerHTML=visible.length?visible.map(r=>`<article class="record-card"><div class="record-card-top"><span class="record-badge">신고가</span><time>${r.day}</time></div><button class="trade-link record-name" data-record-index="${recordRows.indexOf(r)}">${esc(r.name)}</button><p>${esc(data.districts[r.district])} ${esc(r.dong)} · ${esc(r.area)}㎡ · ${esc(r.floor||'—')}층</p><div class="record-price"><strong>${won(r.price)}<small>억원</small></strong><span>+${won(r.delta)}억 · +${r.rate}%</span></div><div class="record-before">이전 기록 ${won(r.previous)}억 <span>→</span> ${won(r.price)}억</div><div class="record-gap" title="${esc(r.previousDay||'')} → ${r.day} · ${fmt(r.recordGapDays)}일">${recordGap(r)}</div></article>`).join(''):`<div class="empty"><h3>${series.some(d=>d.covered)?'해당 기간의 신고가 거래가 없습니다':'비교자료 적재 후 신고가를 확인할 수 있습니다'}</h3></div>`;
@@ -126,12 +126,12 @@ $('recordPrev').onclick=()=>{recordPage--;renderRecords();};$('recordNext').oncl
 $('prev').onclick=()=>{page--;refreshTrades();};$('next').onclick=()=>{page++;refreshTrades();};$('refresh').onclick=load;$('stop').onclick=()=>post('/api/stop');$('resume').onclick=()=>post('/api/resume');
 $('ingest').closest('section').hidden=true;$('setup').hidden=true;$('ingest').onsubmit=e=>{e.preventDefault();post('/api/start',{districts:$('loadDistrict').value?[$('loadDistrict').value]:[],start:$('loadStart').value.replace('-',''),end:$('loadEnd').value.replace('-','')});};
 $('csv').onclick=()=>API.downloadCSV(tradeQuery()).catch(e=>message(e.message,true));
-const today="2026-11";$('loadStart').value='2021-01';$('loadEnd').value=today;$('loadEnd').max=today;$('loadStart').max=today;
+const today="2026-11";$('loadStart').value='2019-01';$('loadEnd').value=today;$('loadEnd').max=today;$('loadStart').max=today;
 const currentDate="2026-11-11";
 $('queryMonth').value=today;$('queryMonth').max=today;
 $('queryMonth').addEventListener('change',()=>{if(data)updateOverview(true).then(ok=>{if(ok)filter();});});
 function moveMonth(step){if(chartMode==='monthly')$('queryYear').value=String(Number($('queryYear').value)+step);else{const [year,month]=$('queryMonth').value.split('-').map(Number);$('queryMonth').value=new Date(Date.UTC(year,month-1+step,1)).toISOString().slice(0,7);}if(data)updateOverview(true).then(ok=>{if(ok)filter();});}
-for(let year=2021;year<=Number(today.slice(0,4));year++)$('queryYear').add(new Option(year+'년',String(year)));
+for(let year=2019;year<=Number(today.slice(0,4));year++)$('queryYear').add(new Option(year+'년',String(year)));
 $('queryYear').value=today.slice(0,4);
 $('queryYear').onchange=()=>{if(data)updateOverview(true).then(ok=>{if(ok)filter();});};
 function setChartMode(mode){if(mode===chartMode)return;if(mode==='monthly')$('queryYear').value=$('queryMonth').value.slice(0,4);else{const month=$('queryYear').value+$('queryMonth').value.slice(4);$('queryMonth').value=month>today?today:month;}chartMode=mode;$('periodQuery').hidden=mode==='all';$('queryMonth').hidden=mode!=='daily';$('queryYear').hidden=mode!=='monthly';$('dailyMode').setAttribute('aria-pressed',String(mode==='daily'));$('monthlyMode').setAttribute('aria-pressed',String(mode==='monthly'));$('allMode').setAttribute('aria-pressed',String(mode==='all'));$('policyInfo').hidden=true;if(data)updateOverview(true).then(ok=>{if(ok)filter();});}
@@ -156,7 +156,7 @@ $('neighborhoodDistrict').onchange=async()=>{const result=await API.get('/api/do
 $('neighborhoodForm').onsubmit=e=>{e.preventDefault();if(!data)return;const district=$('neighborhoodDistrict').value,dong=$('neighborhoodDong').value,start=$('neighborhoodFrom').value,end=$('neighborhoodTo').value;if(!district||start>end){$('neighborhoodSummary').textContent='동네와 기간을 확인해 주세요.';return;}neighborhoodSelection={district,dong,start,end};neighborhoodPage=0;renderNeighborhood();};
 let neighborhoodTotal=0;
 async function renderNeighborhood(){const q=neighborhoodSelection;if(!q)return;const result=await API.get('/api/trades',{...q,kind:'record',page:neighborhoodPage+1,perPage:20});neighborhoodRows=result.items;neighborhoodTotal=result.total;const rows=neighborhoodRows;
- $('neighborhoodTitle').textContent=data.districts[q.district]+(q.dong?' '+q.dong:'')+' 신고가';$('neighborhoodSummary').textContent=`${q.start} ~ ${q.end} · ${fmt(result.total)}건 · 2021년부터 비교`;
+ $('neighborhoodTitle').textContent=data.districts[q.district]+(q.dong?' '+q.dong:'')+' 신고가';$('neighborhoodSummary').textContent=`${q.start} ~ ${q.end} · ${fmt(result.total)}건 · 2019년부터 비교`;
  $('neighborhoodRows').innerHTML=rows.map((r,i)=>`<tr><td><button class="trade-link" data-neighborhood-index="${i}">${esc(r.name)}</button><small>${esc(r.dong)}</small></td><td>${esc(r.area)}㎡</td><td><b>${won(r.price)}</b></td><td>${esc(r.floor)}</td><td>${r.day}</td><td>${won(r.previous)}</td><td>+${won(r.delta)}</td></tr>`).join('');
  $('neighborhoodEmpty').hidden=rows.length>0;$('neighborhoodEmpty').textContent='이 조건의 신고가 거래가 없습니다.';$('downloadNeighborhood').disabled=!rows.length;$('neighborhoodPrev').disabled=neighborhoodPage===0;$('neighborhoodNext').disabled=(neighborhoodPage+1)*20>=result.total;$('neighborhoodPages').textContent=`${result.total?neighborhoodPage+1:0} / ${result.pages}`;}
 $('neighborhoodPrev').onclick=()=>{neighborhoodPage--;renderNeighborhood();};$('neighborhoodNext').onclick=()=>{neighborhoodPage++;renderNeighborhood();};
@@ -170,7 +170,7 @@ $('downloadNeighborhood').onclick=async()=>{
  const wrap=(value,x,y,maxWidth)=>{let line='',offset=0;for(const char of value){ctx.font='600 18px "Malgun Gothic",sans-serif';if(ctx.measureText(line+char).width>maxWidth){text(line,x,y+offset,18,'#20382b',600);line='';offset+=23;}line+=char;}text(line,x,y+offset,18,'#20382b',600);};
  text('서울 아파트 신고가 트래커',42,43,16,'#66805a',600);text($('neighborhoodTitle').textContent,42,95,34,'#173d29',700);
  text(`${q.start} ~ ${q.end}  |  ${fmt(neighborhoodTotal)}건 중 ${neighborhoodPage*20+1}~${neighborhoodPage*20+rows.length}건`,42,135,18,'#63745f');
- text('2021년 이후 · 동일 단지 / 전용면적 소수점 내림 기준 · 해제 거래 제외',42,169,16,'#63745f');
+ text('2019년 이후 · 동일 단지 / 전용면적 소수점 내림 기준 · 해제 거래 제외',42,169,16,'#63745f');
  const xs=[42,482,642,802,882,1072,1232],headers=['단지 / 법정동','전용면적','거래가(억)','층','계약일','이전 기록(억)','상승액(억)'];
  ctx.fillStyle='#234e35';ctx.fillRect(26,198,width-52,48);headers.forEach((v,i)=>text(v,xs[i],229,17,'#eff6e4',600));
  rows.forEach((r,i)=>{const y=246+i*rowHeight;ctx.fillStyle=i%2?'#edf2e6':'#ffffff';ctx.fillRect(26,y,width-52,rowHeight);wrap(r.name,xs[0],y+29,420);text(r.dong,xs[0],y+76,15,'#738267');[r.area+'㎡',won(r.price),r.floor,r.day,won(r.previous),'+'+won(r.delta)].forEach((v,j)=>text(v,xs[j+1],y+45,18,j===1?'#245435':'#20382b',j===1?700:400));});
