@@ -127,7 +127,7 @@ $('prev').onclick=()=>{page--;refreshTrades();};$('next').onclick=()=>{page++;re
 $('ingest').closest('section').hidden=true;$('setup').hidden=true;$('ingest').onsubmit=e=>{e.preventDefault();post('/api/start',{districts:$('loadDistrict').value?[$('loadDistrict').value]:[],start:$('loadStart').value.replace('-',''),end:$('loadEnd').value.replace('-','')});};
 $('csv').onclick=()=>API.downloadCSV(tradeQuery()).catch(e=>message(e.message,true));
 const today="2026-11";$('loadStart').value='2019-01';$('loadEnd').value=today;$('loadEnd').max=today;$('loadStart').max=today;
-const currentDate="2026-11-12";
+const currentDate="2026-11-13";
 $('queryMonth').value=today;$('queryMonth').max=today;
 $('queryMonth').addEventListener('change',()=>{if(data)updateOverview(true).then(ok=>{if(ok)filter();});});
 function moveMonth(step){if(chartMode==='monthly')$('queryYear').value=String(Number($('queryYear').value)+step);else{const [year,month]=$('queryMonth').value.split('-').map(Number);$('queryMonth').value=new Date(Date.UTC(year,month-1+step,1)).toISOString().slice(0,7);}if(data)updateOverview(true).then(ok=>{if(ok)filter();});}

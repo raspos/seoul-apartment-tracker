@@ -6,7 +6,7 @@
  const money=n=>n==null?'—':Number(n/10000).toLocaleString('ko-KR',{maximumFractionDigits:3})+'억';
  const gap=n=>n==null?'비교 보류':(n===0?'0': '-'+num(n))+'%';
  let districts={}, result, ranking='near', searchPage=1, districtPage=1, districtCode='', generation=0,searchToken=0;
- const today="2026-11-12";
+ const today="2026-11-13";
  el('distanceAsOf').value=today;el('distanceAsOf').max=today;
  const params=()=>({asOf:el('distanceAsOf').value,days:el('distanceDays').value});
  function error(e){el('distanceError').textContent=e.message;el('distanceError').hidden=false;}
